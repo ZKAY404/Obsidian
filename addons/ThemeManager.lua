@@ -47,6 +47,10 @@ do
     ThemeManager.Library = nil
     ThemeManager.AppliedToTab = false
     ThemeManager.BuiltInThemes = {
+        ["Default"] = {
+            1,
+            { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "0f0f0f", OutlineColor = "282828", BackgroundImage = "" },
+        },
         ["Revenant"] = {
             1,
             { FontColor = "ffffff", MainColor = "000000", AccentColor = "a6a6a6", BackgroundColor = "090909", OutlineColor = "090909", FontFace = "Gotham" },
@@ -396,6 +400,12 @@ do
                 if self.Library.Options[idx] then
                     self.Library.Options[idx]:SetValue(val)
                 end
+            elseif idx == "BackgroundImage" then
+                self.Library:SetBackgroundImage(val)
+
+                if self.Library.Options[idx] then
+                    self.Library.Options[idx]:SetValue(val)
+                end
             else
                 self.Library.Scheme[idx] = Color3.fromHex(val)
 
@@ -436,7 +446,7 @@ do
     end
 
     function ThemeManager:LoadDefault()
-        local theme = "Revenant"
+        local theme = "Default"
         local content = isfile(self.Folder .. "/themes/default.txt") and readfile(self.Folder .. "/themes/default.txt")
 
         local isDefault = true
@@ -478,8 +488,8 @@ do
                 LibraryScheme[field] = Color3.fromHex(theme[field])
 
             else
-                FinalTheme[field] = ThemeManager.BuiltInThemes["Revenant"][2][field]
-                LibraryScheme[field] = Color3.fromHex(ThemeManager.BuiltInThemes["Revenant"][2][field])
+                FinalTheme[field] = ThemeManager.BuiltInThemes["Default"][2][field]
+                LibraryScheme[field] = Color3.fromHex(ThemeManager.BuiltInThemes["Default"][2][field])
             end
         end
 
@@ -496,13 +506,12 @@ do
             LibraryScheme["Font"] = Font.fromEnum(Enum.Font.Code)
         end
 
-        for _, field in { "RedColor", "DarkColor", "WhiteColor" } do
+        for _, field in { "RedColor", "DestructiveColor", "DarkColor", "WhiteColor" } do
             LibraryScheme[field] = self.Library.Scheme[field]
         end
 
         self.Library.Scheme = LibraryScheme
-        self.DefaultTheme = "Default"
-        self.BuiltInThemes["Default"] = { 0, FinalTheme }
+        self.BuiltInThemes["Default"] = { 1, FinalTheme }
 
         self.Library:UpdateColorsUsingRegistry()
     end
@@ -518,6 +527,7 @@ do
             theme[field] = self.Library.Options[field].Value:ToHex()
         end
         theme["FontFace"] = self.Library.Options["FontFace"].Value
+        theme["BackgroundImage"] = self.Library.Options["BackgroundImage"].Value
 
         writefile(self.Folder .. "/themes/" .. file .. ".json", HttpService:JSONEncode(theme))
     end
@@ -569,20 +579,17 @@ do
 
     --// GUI \\--
     function ThemeManager:CreateThemeManager(groupbox)
-        groupbox
-            :AddLabel("Background color")
-            :AddColorPicker("BackgroundColor", { Default = self.Library.Scheme.BackgroundColor })
+        groupbox:AddLabel("Background color"):AddColorPicker("BackgroundColor", { Default = self.Library.Scheme.BackgroundColor })
         groupbox:AddLabel("Main color"):AddColorPicker("MainColor", { Default = self.Library.Scheme.MainColor })
         groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor", { Default = self.Library.Scheme.AccentColor })
-        groupbox
-            :AddLabel("Outline color")
-            :AddColorPicker("OutlineColor", { Default = self.Library.Scheme.OutlineColor })
+        groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor", { Default = self.Library.Scheme.OutlineColor })
         groupbox:AddLabel("Font color"):AddColorPicker("FontColor", { Default = self.Library.Scheme.FontColor })
         groupbox:AddDropdown("FontFace", {
             Text = "Font Face",
             Default = "Code",
             Values = { "BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans" },
         })
+        groupbox:AddInput("BackgroundImage", { Text = "Background Image", Default = "", ClearTextOnFocus = false, ClearTextOnBlur = false })
 
         local ThemesArray = {}
         for Name, Theme in pairs(self.BuiltInThemes) do
@@ -612,17 +619,49 @@ do
         groupbox:AddInput("ThemeManager_CustomThemeName", { Text = "Custom theme name" })
         groupbox:AddButton("Create theme", function()
             local name = self.Library.Options.ThemeManager_CustomThemeName.Value
-
-            if name:gsub(" ", "") == "" then
+            if not name or name:gsub(" ", "") == "" then
                 self.Library:Notify("Invalid theme name (empty)", 2)
                 return
             end
 
-            self:SaveCustomTheme(name)
+            local function SaveTheme()
+                self:SaveCustomTheme(name)
 
-            self.Library:Notify(string.format("Created theme %q", name))
-            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+                self.Library:Notify(string.format("Created theme %q", name))
+                self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
+                self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+            end
+
+            if not self:GetCustomTheme(name) then
+                SaveTheme()
+                return
+            end
+
+            self.Library.Window:AddDialog("ThemeManager_CreateOverwrite", {
+                Title = "Theme already exists",
+                Description = string.format("A custom theme named %q already exists. Overwriting will replace it with your current colors.", name),
+                AutoDismiss = true,
+                FooterButtons = {
+                    Cancel = {
+                        Title = "Cancel",
+                        Variant = "Ghost",
+                        Order = 1,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+                        end
+                    },
+
+                    Overwrite = {
+                        Title = "Overwrite",
+                        Variant = "Destructive",
+                        Order = 2,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+                            SaveTheme()
+                        end
+                    }
+                },
+            })
         end)
 
         groupbox:AddDivider()
@@ -633,54 +672,140 @@ do
         )
         groupbox:AddButton("Load theme", function()
             local name = self.Library.Options.ThemeManager_CustomThemeList.Value
+            if not name or name:gsub(" ", "") == "" then
+                self.Library:Notify("No theme selected", 2)
+                return
+            end
 
             self:ApplyTheme(name)
             self.Library:Notify(string.format("Loaded theme %q", name))
         end)
         groupbox:AddButton("Overwrite theme", function()
             local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-
-            self:SaveCustomTheme(name)
-            self.Library:Notify(string.format("Overwrote config %q", name))
-        end)
-        groupbox:AddButton("Delete theme", function()
-            local name = self.Library.Options.ThemeManager_CustomThemeList.Value
-
-            local success, err = self:Delete(name)
-            if not success then
-                self.Library:Notify("Failed to delete theme: " .. err)
+            if not name or name:gsub(" ", "") == "" then
+                self.Library:Notify("No theme selected", 2)
                 return
             end
 
-            self.Library:Notify(string.format("Deleted theme %q", name))
-            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+            self.Library.Window:AddDialog("ThemeManager_OverwriteTheme", {
+                Title = "Overwrite theme",
+                Description = string.format("Are you sure you want to overwrite %q with your current colors? This cannot be undone.", name),
+                AutoDismiss = true,
+                FooterButtons = {
+                    Cancel = {
+                        Title = "Cancel",
+                        Variant = "Ghost",
+                        Order = 1,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+                        end
+                    },
+
+                    Overwrite = {
+                        Title = "Overwrite",
+                        Variant = "Destructive",
+                        Order = 2,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+
+                            self:SaveCustomTheme(name)
+                            self.Library:Notify(string.format("Overwrote config %q", name))
+                        end
+                    }
+                }
+            })
+        end)
+        groupbox:AddButton("Delete theme", function()
+            local name = self.Library.Options.ThemeManager_CustomThemeList.Value
+            if not name or name:gsub(" ", "") == "" then
+                self.Library:Notify("No theme selected", 2)
+                return
+            end
+
+            self.Library.Window:AddDialog("ThemeManager_DeleteTheme", {
+                Title = "Delete theme",
+                Description = string.format("Are you sure you want to delete %q? This cannot be undone.", name),
+                AutoDismiss = true,
+                FooterButtons = {
+                    Cancel = {
+                        Title = "Cancel",
+                        Variant = "Ghost",
+                        Order = 1,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+                        end
+                    },
+
+                    Delete = {
+                        Title = "Delete",
+                        Variant = "Destructive",
+                        Order = 2,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+
+                            local success, err = self:Delete(name)
+                            if not success then
+                                self.Library:Notify("Failed to delete theme: " .. err)
+                                return
+                            end
+
+                            self.Library:Notify(string.format("Deleted theme %q", name))
+                            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
+                            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+                        end
+                    }
+                }
+            })
         end)
         groupbox:AddButton("Refresh list", function()
             self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
             self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
         end)
         groupbox:AddButton("Set as default", function()
-            if
-                self.Library.Options.ThemeManager_CustomThemeList.Value ~= nil
-                and self.Library.Options.ThemeManager_CustomThemeList.Value ~= ""
-            then
-                self:SaveDefault(self.Library.Options.ThemeManager_CustomThemeList.Value)
-                self.Library:Notify(
-                    string.format("Set default theme to %q", self.Library.Options.ThemeManager_CustomThemeList.Value)
-                )
-            end
-        end)
-        groupbox:AddButton("Reset default", function()
-            local success = pcall(delfile, self.Folder .. "/themes/default.txt")
-            if not success then
-                self.Library:Notify("Failed to reset default: delete file error")
+            local name = self.Library.Options.ThemeManager_CustomThemeList.Value
+            if not name or name:gsub(" ", "") == "" then
+                self.Library:Notify("No theme selected", 2)
                 return
             end
 
-            self.Library:Notify("Set default theme to nothing")
-            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
-            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+            self:SaveDefault(name)
+            self.Library:Notify(string.format("Set default theme to %q", name))
+        end)
+        groupbox:AddButton("Reset default", function()
+            self.Library.Window:AddDialog("ThemeManager_ResetDefault", {
+                Title = "Reset default theme",
+                Description = "Are you sure you want to clear the default theme? The library will revert to its built-in default on next load.",
+                AutoDismiss = true,
+                FooterButtons = {
+                    Cancel = {
+                        Title = "Cancel",
+                        Variant = "Ghost",
+                        Order = 1,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+                        end
+                    },
+
+                    Reset = {
+                        Title = "Reset",
+                        Variant = "Destructive",
+                        Order = 2,
+                        Callback = function(Dialog)
+                            Dialog:Dismiss()
+
+                            local success = pcall(delfile, self.Folder .. "/themes/default.txt")
+                            if not success then
+                                self.Library:Notify("Failed to reset default: delete file error")
+                                return
+                            end
+
+                            self.Library:Notify("Set default theme to nothing")
+                            self.Library.Options.ThemeManager_CustomThemeList:SetValues(self:ReloadCustomThemes())
+                            self.Library.Options.ThemeManager_CustomThemeList:SetValue(nil)
+                        end
+                    }
+                }
+            })
         end)
 
         self:LoadDefault()
@@ -697,18 +822,20 @@ do
         self.Library.Options.FontColor:OnChanged(UpdateTheme)
         self.Library.Options.FontFace:OnChanged(function(Value)
             self.Library:SetFont(Enum.Font[Value])
-            self.Library:UpdateColorsUsingRegistry()
+        end)
+        self.Library.Options.BackgroundImage:OnChanged(function(Value)
+            self.Library:SetBackgroundImage(Value)
         end)
     end
 
-    function ThemeManager:CreateGroupBox(tab)
+    function ThemeManager:CreateGroupBox(tab, icon)
         assert(self.Library, "Must set ThemeManager.Library first!")
-        return tab:AddLeftGroupbox("Themes", "paintbrush")
+        return tab:AddLeftGroupbox("Themes", icon or "paintbrush")
     end
 
-    function ThemeManager:ApplyToTab(tab)
+    function ThemeManager:ApplyToTab(tab, icon)
         assert(self.Library, "Must set ThemeManager.Library first!")
-        local groupbox = self:CreateGroupBox(tab)
+        local groupbox = self:CreateGroupBox(tab, icon)
         self:CreateThemeManager(groupbox)
     end
 
