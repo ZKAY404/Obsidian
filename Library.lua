@@ -218,7 +218,7 @@ local Library = {
     OriginalMinSize = Vector2.new(480, 360),
     MinSize = Vector2.new(480, 360),
     DPIScale = 1,
-    CornerRadius = 14,
+    CornerRadius = 10,
 
     IsLightTheme = false,
     Scheme = {
@@ -2906,6 +2906,9 @@ do
         end
 
         local KeybindsToggle = { Normal = KeyPicker.Mode ~= "Toggle" }
+        -- Expose the list entry on the KeyPicker so external code (e.g. TSB's
+        -- RenderStepped keybind sync) can control its visibility directly.
+        KeyPicker.KeybindsToggle = KeybindsToggle
         do
             local Holder = New("TextButton", {
                 BackgroundTransparency = 1,
@@ -3170,10 +3173,12 @@ do
                 return
             end
 
-            -- Hide a Toggle-mode keybind from the on-screen list while its parent
-            -- Toggle is OFF (not just when disabled), so keybinds for inactive
-            -- features don't linger in the list.
-            if KeyPicker.Mode == "Toggle" and ParentObj.Type == "Toggle" and not ParentObj.Value then
+            -- External visibility control: code (e.g. TSB's _syncKBVis) can set
+            -- KeyPicker.ForceListHidden to keep a keybind out of the on-screen list
+            -- until the feature that uses it is toggled on. Respected here so
+            -- Update() never re-shows a keybind that is meant to stay hidden,
+            -- regardless of the keybind's Mode or what element it is attached to.
+            if KeyPicker.ForceListHidden then
                 KeybindsToggle:SetVisibility(false)
                 return
             end
@@ -8076,12 +8081,12 @@ function Library:CreateWindow(WindowInfo)
             Parent = TitleHolder,
         })
 
-        if WindowInfo.Icon then
-            local Icon = Library:GetCustomIcon(WindowInfo.Icon)
+        local ResolvedWindowIcon = WindowInfo.Icon and Library:GetCustomIcon(WindowInfo.Icon)
+        if ResolvedWindowIcon then
             WindowIcon = New("ImageLabel", {
-                Image = Icon.Url,
-                ImageRectOffset = Icon.ImageRectOffset,
-                ImageRectSize = Icon.ImageRectSize,
+                Image = ResolvedWindowIcon.Url,
+                ImageRectOffset = ResolvedWindowIcon.ImageRectOffset,
+                ImageRectSize = ResolvedWindowIcon.ImageRectSize,
                 Size = WindowInfo.IconSize,
                 Parent = TitleHolder,
             })
@@ -8530,6 +8535,17 @@ function Library:CreateWindow(WindowInfo)
                 Text = "",
                 Parent = Tabs,
             })
+            do
+                -- Surface the tab Name/Description on hover -- useful when the
+                -- sidebar is compacted and the label is hidden.
+                local _tabTip = Name or ""
+                if Description and Description ~= "" then
+                    _tabTip = (_tabTip ~= "" and (_tabTip .. " — ") or "") .. Description
+                end
+                if _tabTip ~= "" then
+                    Library:AddTooltip(_tabTip, nil, TabButton)
+                end
+            end
             local ButtonPadding = New("UIPadding", {
                 PaddingBottom = UDim.new(0, IsCompact and 6 or 11),
                 PaddingLeft = UDim.new(0, IsCompact and 6 or 12),
