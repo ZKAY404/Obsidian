@@ -862,8 +862,6 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     
     Themesbox:AddInput("BackgroundImage", {
         Text = "Background Image",
-        Placeholder = "rbxassetid or https:// image link",
-        Tooltip = "Accepts a Roblox asset id OR a direct image URL (.png/.jpg). URLs are downloaded via getcustomasset (needs an executor with writefile/getcustomasset).",
 
         Default = "",
         ClearTextOnFocus = false,
