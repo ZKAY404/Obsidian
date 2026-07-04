@@ -8535,17 +8535,6 @@ function Library:CreateWindow(WindowInfo)
                 Text = "",
                 Parent = Tabs,
             })
-            do
-                -- Surface the tab Name/Description on hover -- useful when the
-                -- sidebar is compacted and the label is hidden.
-                local _tabTip = Name or ""
-                if Description and Description ~= "" then
-                    _tabTip = (_tabTip ~= "" and (_tabTip .. " — ") or "") .. Description
-                end
-                if _tabTip ~= "" then
-                    Library:AddTooltip(_tabTip, nil, TabButton)
-                end
-            end
             local ButtonPadding = New("UIPadding", {
                 PaddingBottom = UDim.new(0, IsCompact and 6 or 11),
                 PaddingLeft = UDim.new(0, IsCompact and 6 or 12),
