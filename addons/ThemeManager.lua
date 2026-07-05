@@ -50,26 +50,26 @@ local ThemeManager = {
     BuiltInThemes = {
         ["Revenant"] = {
             1,
-            { FontColor = "ffffff", MainColor = "000000", AccentColor = "a6a6a6", BackgroundColor = "090909", OutlineColor = "090909", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "292929", AccentColor = "ffffff", BackgroundColor = "1b1b1b", OutlineColor = "090909", FontFace = "Gotham", BackgroundImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVHoaOD-VvATzn3apSgwCZ82FX8rOIFJJwv6r5_A97PLraax2Aj6eLjCD-&s=10" },
         },
         -- "Default" is required by the manager code as its mutable default slot;
         -- it is the same theme the old build called "Default Obsidian" (identical
         -- colors), so the duplicate "Default Obsidian" entry was removed.
         ["Default"] = {
             2,
-            { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "0f0f0f", OutlineColor = "282828", FontFace = "Code" },
+            { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "000000", OutlineColor = "282828", FontFace = "Code", BackgroundImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVc3OiYJcTpQclFPtI3KbrDkg7b7n7LIWJ6NcV64HZ4g&s=10" },
         },
         ["Old Revenant."] = {
             4,
-            { FontColor = "ffffff", MainColor = "191919", AccentColor = "a2a2a2", BackgroundColor = "000000", OutlineColor = "282828", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "191919", AccentColor = "a2a2a2", BackgroundColor = "161616", OutlineColor = "282828", FontFace = "Gotham", BackgroundImage = "https://images.wallpaperscraft.com/image/single/building_minimalism_bw_132403_800x600.jpg" },
         },
         ["Aurora"] = {
             5,
-            { FontColor = "e0f7fa", MainColor = "2b303b", AccentColor = "81a1c1", BackgroundColor = "1c222b", OutlineColor = "3e4755", FontFace = "Gotham" },
+            { FontColor = "e0f7fa", MainColor = "2b303b", AccentColor = "81a1c1", BackgroundColor = "1c222b", OutlineColor = "3e4755", FontFace = "Gotham", BackgroundImage = "https://www.opovo.com.br/_midias/jpg/2024/07/09/800x600/1_aurora_boreal-27961271.jpg" },
         },
         ["BBot"] = {
             6,
-            { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "232323", OutlineColor = "141414", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "1b1b1b", OutlineColor = "141414", FontFace = "Gotham", BackgroundImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlpRsKu5aY4yQcPUqwYtqUVCGNzCtmmyuep52uypvyoV9sSP8v1ozJ4q4&s=10" },
         },
         ["Berry Smoothie"] = {
             7,
@@ -77,23 +77,23 @@ local ThemeManager = {
         },
         ["Buttercup"] = {
             8,
-            { FontColor = "ffffff", MainColor = "967011", AccentColor = "ffeb3b", BackgroundColor = "3a301a", OutlineColor = "7a6d28", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "967011", AccentColor = "ffeb3b", BackgroundColor = "3a301a", OutlineColor = "7a6d28", FontFace = "Gotham", BackgroundImage = "https://w0.peakpx.com/wallpaper/43/870/HD-wallpaper-yellow-autumn-leaves-forest-autumn-tree-nature-sky.jpg" },
         },
         ["Candy Cane"] = {
             9,
-            { FontColor = "000000", MainColor = "ff9191", AccentColor = "ec3737", BackgroundColor = "fccbcb", OutlineColor = "b49797", FontFace = "Gotham" },
+            { FontColor = "000000", MainColor = "ff9191", AccentColor = "ec3737", BackgroundColor = "fccbcb", OutlineColor = "b49797", FontFace = "Gotham", BackgroundImage = "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L3JtNDg2LWJnLTAwNF8xLmpwZw.jpg" },
         },
         ["Candy Pop"] = {
             10,
-            { FontColor = "ffffff", MainColor = "5e2e65", AccentColor = "00e6e6", BackgroundColor = "1c002a", OutlineColor = "4a0044", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "5e2e65", AccentColor = "00e6e6", BackgroundColor = "1c002a", OutlineColor = "4a0044", FontFace = "Gotham", BackgroundImage = "https://img.magnific.com/free-vector/paper-cut-abstract-background_474888-6375.jpg?semt=ais_hybrid&w=740&q=80" },
         },
         ["Canyon Clay"] = {
             11,
-            { FontColor = "ffffff", MainColor = "7f5539", AccentColor = "d78e6c", BackgroundColor = "3a2117", OutlineColor = "6c4a3b", FontFace = "Gotham" },
+            { FontColor = "ffffff", MainColor = "7f5539", AccentColor = "d78e6c", BackgroundColor = "3a2117", OutlineColor = "6c4a3b", FontFace = "Gotham", BackgroundImage = "https://w0.peakpx.com/wallpaper/347/928/HD-wallpaper-brown-flower-field-during-daytime.jpg" },
         },
         ["Catppuccin"] = {
             12,
-            { FontColor = "d9e0ee", MainColor = "302d41", AccentColor = "f5c2e7", BackgroundColor = "1e1e2e", OutlineColor = "575268", FontFace = "Gotham" },
+            { FontColor = "d9e0ee", MainColor = "302d41", AccentColor = "f5c2e7", BackgroundColor = "1e1e2e", OutlineColor = "575268", FontFace = "Gotham", BackgroundImage = "https://img.magnific.com/free-photo/space-galaxy-background_53876-93121.jpg?semt=ais_hybrid&w=740&q=80" },
         },
         ["Celestial"] = {
             13,
@@ -758,6 +758,15 @@ function ThemeManager:ApplyTheme(ThemeName: string)
 
         if Element then
             Element:SetValue(FinalValue)
+        end
+    end
+
+    -- Themes without a BackgroundImage key should clear whatever image a previous
+    -- theme left behind (the loop above only runs for keys present in the data).
+    if not ThemeData.BackgroundImage then
+        ThemeManager.Library:SetBackgroundImage("")
+        if Library.Options.BackgroundImage then
+            Library.Options.BackgroundImage:SetValue("")
         end
     end
 
