@@ -45,7 +45,7 @@ local ThemeManager = {
     Folder = "ObsidianLibSettings",
 
     AppliedToTab = false,
-    DefaultThemeName = Revenant,
+    DefaultThemeName = "Revenant",
 
     BuiltInThemes = {
         ["Revenant"] = {
