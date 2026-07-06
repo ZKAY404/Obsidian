@@ -667,6 +667,9 @@ function ThemeManager:LoadDefault()
     if not Success or FetchErrorMessage then
         if FetchErrorMessage ~= "Default theme is not set" then
             ThemeManager.Library:Notify(string.format("Failed to apply default theme: %s", FetchErrorMessage))
+        else
+            -- No user default saved: fall back to the Revenant theme as the out-of-box default.
+            pcall(function() ThemeManager.Library.Options.ThemeManager_ThemeList:SetValue("Revenant") end)
         end
 
         return
