@@ -48,14 +48,11 @@ local ThemeManager = {
     DefaultThemeName = nil,
 
     BuiltInThemes = {
-        ["Revenant"] = {
+        ["Default"] = {
             1,
             { FontColor = "ffffff", MainColor = "292929", AccentColor = "ffffff", BackgroundColor = "1b1b1b", OutlineColor = "090909", FontFace = "Gotham", BackgroundImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVHoaOD-VvATzn3apSgwCZ82FX8rOIFJJwv6r5_A97PLraax2Aj6eLjCD-&s=10" },
         },
-        -- "Default" is required by the manager code as its mutable default slot;
-        -- it is the same theme the old build called "Default Obsidian" (identical
-        -- colors), so the duplicate "Default Obsidian" entry was removed.
-        ["Default"] = {
+        ["Default Obsidian"] = {
             2,
             { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "000000", OutlineColor = "282828", FontFace = "Code", BackgroundImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVc3OiYJcTpQclFPtI3KbrDkg7b7n7LIWJ6NcV64HZ4g&s=10" },
         },
